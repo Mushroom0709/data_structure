@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <conio.h>
 
+#include <queue>
 #include <stack>
 
 //                          建立的二叉树模型
@@ -89,7 +90,6 @@ PBIN_TREE_ROOT build_complete_bin_tree(int _start,int _num)
 void destroy_bin_tree(PBIN_TREE_ROOT* _root)
 {
     PBIN_TREE_NODE now_node = NULL;
-    PBIN_TREE_NODE last_node = NULL;
     std::stack<PBIN_TREE_NODE> node_cache;
 
     node_cache.push(*_root);
@@ -119,44 +119,163 @@ void destroy_bin_tree(PBIN_TREE_ROOT* _root)
 // 递归实现 先序遍历
 void recursive_preorder_traversal_bin_tree(PBIN_TREE_NODE _node)
 {
-    if (_node != NULL)
-    {
-        printf("%d ", _node->value);
+    if (_node == NULL)
+        return;
 
-        recursive_preorder_traversal_bin_tree(_node->left);
-        recursive_preorder_traversal_bin_tree(_node->right);
-    }
+    printf("%d ", _node->value);
+
+    recursive_preorder_traversal_bin_tree(_node->left);
+    recursive_preorder_traversal_bin_tree(_node->right);
 }
 
 // 递归实现 中序遍历
 void recursive_inorder_traversal_bin_tree(PBIN_TREE_NODE _node)
 {
-    if (_node != NULL)
-    {
-        recursive_inorder_traversal_bin_tree(_node->left);
+    if (_node == NULL)
+        return;
 
-        printf("%d ", _node->value);
+    recursive_inorder_traversal_bin_tree(_node->left);
 
-        recursive_inorder_traversal_bin_tree(_node->right);
-    }
+    printf("%d ", _node->value);
+
+    recursive_inorder_traversal_bin_tree(_node->right);
 }
 
 // 递归实现 后序遍历
 void recursive_postorder_traversal_bin_tree(PBIN_TREE_NODE _node)
 {
-    if (_node != NULL)
-    {
-        recursive_postorder_traversal_bin_tree(_node->left);
-        recursive_postorder_traversal_bin_tree(_node->right);
+    if (_node == NULL)
+        return;
 
-        printf("%d ", _node->value);
+    recursive_postorder_traversal_bin_tree(_node->left);
+    recursive_postorder_traversal_bin_tree(_node->right);
+
+    printf("%d ", _node->value);
+}
+
+// 非递归实现 先序遍历
+void nonrecursive_preorder_traversal_bin_tree(PBIN_TREE_NODE _node)
+{
+    if (_node == NULL)
+        return;
+
+    PBIN_TREE_NODE now_node = NULL;
+    std::stack<PBIN_TREE_NODE> node_cache;
+
+    node_cache.push(_node);
+
+    while (node_cache.empty() == false)
+    {
+        now_node = node_cache.top();
+        node_cache.pop();
+
+        printf("%d ", now_node->value);
+
+        if (now_node->right != NULL)
+            node_cache.push(now_node->right);
+
+        if (now_node->left != NULL)
+            node_cache.push(now_node->left);
+    }
+}
+
+// 非递归实现 中序遍历
+void nonrecursive_inorder_traversal_bin_tree(PBIN_TREE_NODE _node)
+{
+    if (_node == NULL)
+        return;
+
+    PBIN_TREE_NODE now_node = NULL;
+    std::stack<PBIN_TREE_NODE> node_cache;
+
+    now_node = _node;
+
+    while (node_cache.empty() == false || now_node != NULL)
+    {
+        if (now_node != NULL)
+        {
+            node_cache.push(now_node);
+            now_node = now_node->left;
+        }
+        else
+        {
+            now_node = node_cache.top();
+            node_cache.pop();
+
+            printf("%d ", now_node->value);
+
+            now_node = now_node->right;
+        }
+    }
+}
+
+// 非递归实现 后序遍历
+void nonrecursive_postorder_traversal_bin_tree(PBIN_TREE_NODE _node)
+{
+    if (_node == NULL)
+        return;
+
+    PBIN_TREE_NODE nnow = _node;
+    PBIN_TREE_NODE nlast = NULL;
+
+    std::stack<PBIN_TREE_NODE> node_cache;
+
+    while (node_cache.empty() == false || nnow != NULL)
+    {
+        if (nnow != NULL)
+        {
+            node_cache.push(nnow);
+            nnow = nnow->left;
+        }
+        else
+        {
+          
+            nnow = node_cache.top();
+
+            if (nnow->right != NULL && nnow->right != nlast)
+                nnow = nnow->right;
+            else
+            {
+                node_cache.pop();
+
+                printf("%d ", nnow->value);
+
+                nlast = nnow;
+                nnow = NULL;
+            }
+        }
+    }
+}
+
+void level_traversal_bin_tree(PBIN_TREE_NODE _node)
+{
+    if (_node == NULL)
+        return;
+
+    PBIN_TREE_NODE now_node = NULL;
+    std::queue<PBIN_TREE_NODE> node_cache;
+
+    node_cache.push(_node);
+
+    while (node_cache.empty() == false)
+    {
+        now_node = node_cache.front();
+        node_cache.pop();
+
+        printf("%d ", now_node->value);
+
+        if (now_node->left != NULL)
+            node_cache.push(now_node->left);
+
+        if (now_node->right != NULL)
+            node_cache.push(now_node->right);
     }
 }
 
 
 void print_traversal_bin_tree(void (*_fun)(PBIN_TREE_NODE), PBIN_TREE_ROOT _root, const char* _title)
 {
-    printf("%s:", _title);
+    printf("%16s:", _title);
     _fun(_root);
     printf("\n");
 }
@@ -169,7 +288,12 @@ int main(int argc, char* argv[])
     print_traversal_bin_tree(recursive_inorder_traversal_bin_tree, root, "递归-中序遍历");
     print_traversal_bin_tree(recursive_postorder_traversal_bin_tree, root, "递归-后序遍历");
 
-    destroy_bin_tree(&root);
+    print_traversal_bin_tree(nonrecursive_preorder_traversal_bin_tree, root, "非递归-前序遍历");
+    print_traversal_bin_tree(nonrecursive_inorder_traversal_bin_tree, root, "非递归-中序遍历");
+    print_traversal_bin_tree(nonrecursive_postorder_traversal_bin_tree, root, "非递归-后序遍历");
 
+    print_traversal_bin_tree(level_traversal_bin_tree, root, "层级遍历");
+
+    destroy_bin_tree(&root);
     return 0;
 }
