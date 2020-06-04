@@ -333,7 +333,7 @@ namespace xAVL
         {
             PNode now_node = nullptr;
             std::queue<PNode> cache;
-
+            cache.push(root_);
             while (cache.empty() == false)
             {
                 now_node = cache.front();
