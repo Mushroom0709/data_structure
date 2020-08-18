@@ -212,13 +212,13 @@ namespace xM
                 }
             }
 
-            Distroy();
+            Destroy();
 
             if (event_ != nullptr)
                 event_->Stopped(id_);
         }
         // 结束的处理
-        void TcpEpollCore::Distroy()
+        void TcpEpollCore::Destroy()
         {
             run_flag_ = false;
 
@@ -243,7 +243,7 @@ namespace xM
         }
         TcpEpollCore::~TcpEpollCore()
         {
-            Distroy();
+            Destroy();
         }
 
     }

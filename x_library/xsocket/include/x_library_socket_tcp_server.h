@@ -116,7 +116,7 @@ namespace xM
                 if (work_thread_.joinable())
                     work_thread_.join();
 
-                core_.Distroy();
+                core_.Destroy();
             }
         public:
             TcpServer() :

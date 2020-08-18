@@ -33,9 +33,12 @@ namespace xM
             if (run_flag_ == false || _size <= 0)
                 return false;
 
-            std::lock_guard<std::mutex> auto_lock(lock_mtx_);
+            std::set<int> conns_copy;
+            lock_mtx_.lock();
+            conns_copy.insert(conns_.begin(), conns_.end());
+            lock_mtx_.unlock();
 
-            for (auto item : conns_)
+            for (auto item : conns_copy)
             {
                 size_t result = 0;
                 size_t current = 0;

@@ -62,7 +62,7 @@ namespace xM
             virtual void Work() = 0;
 
             // 结束的处理
-            virtual void Distroy() = 0;
+            virtual void Destroy() = 0;
 
             // 停止执行逻辑
             virtual void Stop();
