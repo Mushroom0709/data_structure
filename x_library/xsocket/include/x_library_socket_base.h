@@ -23,14 +23,28 @@ namespace xM
         class IEventBase
         {
         public:
+            virtual void Receive(int _fd, uint8_t* _data, size_t _size) {};
+        };
+
+        class IServerEvent:
+            public IEventBase
+        {
+        public:
             virtual void Connected(int _fd) {};
             virtual void DisConnect(int _fd) {};
-            virtual void Receive(int _fd, uint8_t* _data, size_t _size) {};
             virtual void Started(int _id) {};
             virtual void Stopped(int _id) {};
         };
 
-        typedef IEventBase* PtrIEventBase;
+        typedef IServerEvent* PtrIServerEvent;
+
+        class IConnectEvent :
+            public IEventBase
+        {
+
+        };
+
+        typedef IConnectEvent* PtrIConnectEvent;
 
 #define X_SOCKET_MAX_CONNECT INT16_MAX
 
@@ -38,13 +52,29 @@ namespace xM
 
 #define X_SOCKET_DEFUALT_TIMEOUT 50
 
+        class IServer :
+            public IServerEvent
+        {
+#define  X_SOCKET_DEFUALT_LISTEN_CNT 256
+        protected:
+            int listener_fd_;
+            PtrIServerEvent event_;
+        public:
+            virtual bool Start(PtrIServerEvent _ev, int _port, const char* _ip) = 0;
+            virtual void Stop() = 0;
+            virtual int Send(int _fd, uint8_t* _data, size_t _size);
+        public:
+            IServer();
+            virtual ~IServer();
+        };
+
         class IServerCore
         {
         protected:
             int id_;
 
             std::atomic<bool> run_flag_;
-            PtrIEventBase event_;
+            PtrIServerEvent event_;
 
             int listener_fd_;
 
@@ -53,7 +83,7 @@ namespace xM
             std::set<int> conns_;
         public:
             // 初始化相关变量
-            virtual bool Init(PtrIEventBase _event, int _max_conn) = 0;
+            virtual bool Init(PtrIServerEvent _event, int _max_conn) = 0;
 
             // 加入监听socket
             virtual bool SetConnect(int _fd,bool _is_listener) = 0;
@@ -83,20 +113,43 @@ namespace xM
             virtual ~IServerCore();
         };
 
-        class IServer:
-            public IEventBase
+        class IConnect :
+            public IConnectEvent
         {
-#define  X_SOCKET_DEFUALT_LISTEN_CNT 256
         protected:
-            int listener_fd_;
-            PtrIEventBase event_;
+            int conn_fd_;
+            PtrIConnectEvent event_;
         public:
-            virtual bool Start(PtrIEventBase _ev, int _port, const char* _ip) = 0;
-            virtual void Stop() = 0;
-            virtual int Send(int _fd, uint8_t* _data, size_t _size);
+            virtual bool Connect(PtrIConnectEvent _ev, int _port, const char* _ip) = 0;
+            virtual void Disconnect() = 0;
+            int Send(int _fd,uint8_t* _data, size_t _size);
         public:
-            IServer();
-            virtual ~IServer();
+            IConnect();
+            virtual ~IConnect();
+        };
+
+        class IConnectCore
+        {
+        protected:
+            std::atomic<bool> run_flag_;
+            PtrIConnectEvent event_;
+
+            int conn_fd_;
+        public:
+            // 初始化相关变量
+            virtual bool Init(PtrIConnectEvent _event, int _conn_fd) = 0;
+
+            // 执行逻辑
+            virtual void Work() = 0;
+
+            // 结束的处理
+            virtual void Destroy() = 0;
+
+            // 停止执行逻辑
+            virtual void Stop();
+        public:
+            IConnectCore();
+            virtual ~IConnectCore();
         };
     }
 }

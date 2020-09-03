@@ -5,7 +5,7 @@ int main(int argc, char* argv[])
 	std::string result;
 	xM::db::xRedis rb;
 
-	if (false == rb.Connect())
+	if (false == rb.Connect("192.168.137.1"))
 		return false;
 
 	//rb.SetKey("mushroom", "1234");

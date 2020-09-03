@@ -45,4 +45,7 @@
 
 #endif
 
+#define X_FD_INVALID -1
+#define X_FD_ERROR INT_MIN
+
 #endif // !_X_LIBRARY_COMMON_HPP_

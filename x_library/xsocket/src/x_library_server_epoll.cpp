@@ -1,4 +1,4 @@
-#include "x_library_socket_epoll.h"
+#include "x_library_server_epoll.h"
 
 namespace xM
 {
@@ -94,7 +94,7 @@ namespace xM
         }
 
         // 初始化相关变量
-        bool TcpEpollCore::Init(PtrIEventBase _event, int _max_conn)
+        bool TcpEpollCore::Init(PtrIServerEvent _event, int _max_conn)
         {
             if (_event == nullptr)
                 return false;

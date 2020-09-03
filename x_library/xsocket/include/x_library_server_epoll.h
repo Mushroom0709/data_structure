@@ -1,17 +1,19 @@
-#ifndef _X_LIBRARY_SOCKET_SELECT_H_
-#define _X_LIBRARY_SOCKET_SELECT_H_
+#ifndef _X_LIBRARY_SERVER_EPOLL_H_
+#define _X_LIBRARY_SERVER_EPOLL_H_
 
 #include "x_library_socket_base.h"
 
-#include <sys/select.h>
+#include <sys/epoll.h>
 
 namespace xM
 {
     namespace x_socket
     {
-		class TcpSelectCore:
-			public IServerCore
-		{
+        class TcpEpollCore :
+            public IServerCore
+        {
+        private:
+            int ep_fd_;
         private:
             int recv_len_;
             uint8_t recv_buf_[X_SOCKET_MAX_BUF_SIZE];
@@ -21,7 +23,7 @@ namespace xM
             bool process_accept();
         public:
             // 初始化相关变量
-            bool Init(PtrIEventBase _event, int _max_conn = FD_SETSIZE);
+            bool Init(PtrIServerEvent _event, int _max_conn = X_SOCKET_MAX_CONNECT);
 
             // 加入监听socket
             bool SetConnect(int _fd, bool _is_listener = false);
@@ -32,10 +34,10 @@ namespace xM
             // 结束的处理
             void Destroy();
         public:
-            TcpSelectCore();
-            ~TcpSelectCore();
-		};
+            TcpEpollCore();
+            ~TcpEpollCore();
+        };
     }
 }
 
-#endif // !_X_LIBRARY_SOCKET_SELECT_H_
+#endif // !_X_LIBRARY_SERVER_EPOLL_H_

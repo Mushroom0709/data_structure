@@ -1,15 +1,15 @@
-#include "x_library_socket_epoll.h"
-#include "x_library_socket_select.h"
-#include "x_library_socket_server.h"
+#include "x_library_server_select.h"
+#include "x_library_server_epoll.h"
+#include "x_library_socket_tcp_server.h"
 
 #include <time.h>
 
-class EPollTest :
-	public xM::x_socket::EventBase
+class ServerTest :
+	public xM::x_socket::IServerEvent
 {
 private:
-	xM::x_socket::TcpServer<xM::x_socket::TcpEpollCore> server_;
-	//xM::x_socket::TcpServer<xM::x_socket::TcpSelectCore> server_;
+	//xM::x_socket::TcpServer<xM::x_socket::TcpEpollCore> server_;
+	xM::x_socket::TcpServer<xM::x_socket::TcpSelectCore> server_;
 private:
 	virtual void Connected(int _fd)
 	{	
@@ -26,20 +26,20 @@ private:
 		std::string str = std::to_string(time(NULL));
 		server_.Send(_fd, (uint8_t*)str.c_str(), str.length());
 	}
-	virtual void Started()
+	virtual void Started(int _id)
 	{
 		xInfoPrintln("[Started]");
 	}
-	virtual void Stopped()
+	virtual void Stopped(int _id)
 	{
 		xInfoPrintln("[Stopped]");
 	}
 public:
-	EPollTest()
+	ServerTest()
 	{
 		//
 	}
-	~EPollTest()
+	~ServerTest()
 	{
 		//
 	}
@@ -56,13 +56,12 @@ public:
 
 int main()
 {
-	EPollTest test;
+	ServerTest test;
 	if (test.Start())
 	{
 		getchar();
 		test.Stop();
 	}
-	getchar();
 
 	return 0;
 }

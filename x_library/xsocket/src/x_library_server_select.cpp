@@ -1,4 +1,4 @@
-#include "x_library_socket_select.h"
+#include "x_library_server_select.h"
 
 namespace xM
 {
@@ -69,7 +69,7 @@ namespace xM
             }
 
             // 初始化相关变量
-            bool TcpSelectCore::Init(PtrIEventBase _event, int _max_conn)
+            bool TcpSelectCore::Init(PtrIServerEvent _event, int _max_conn)
             {
                 if (_event == nullptr)
                     return false;
@@ -116,6 +116,7 @@ namespace xM
 
                 int slt_res = 0;
                 fd_set read_fd;
+                int max_fd_num = X_FD_INVALID;
                 std::set<int> conns_copy;
 
                 if (event_ != nullptr)
@@ -124,6 +125,7 @@ namespace xM
                 run_flag_ = true;
                 while (run_flag_)
                 {
+                    max_fd_num = listener_fd_;
                     FD_ZERO(&read_fd);
                     if (listener_fd_ != X_FD_INVALID)
                         FD_SET(listener_fd_, &read_fd);
@@ -137,9 +139,11 @@ namespace xM
                     for (auto item : conns_)
                     {
                         FD_SET(item, &read_fd);
+                        if (max_fd_num < item)
+                            max_fd_num = item;
                     }
 
-                    slt_res = ::select(max_conn_ + 1, &read_fd, NULL, NULL, &timeout);
+                    slt_res = ::select(max_fd_num + 1, &read_fd, NULL, NULL, &timeout);
                     if (slt_res == 0)
                     {
                         //timeout
@@ -194,7 +198,7 @@ namespace xM
             TcpSelectCore::TcpSelectCore() :
                 IServerCore()
             {
-                //
+
             }
             TcpSelectCore::~TcpSelectCore()
             {

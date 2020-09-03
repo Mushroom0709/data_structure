@@ -4,10 +4,42 @@ namespace xM
 {
     namespace x_socket
     {
+
+
+/**************************************# IServer #*********************************************/
+        int IServer::Send(int _fd, uint8_t* _data, size_t _size)
+        {
+            size_t result = 0;
+            size_t current = 0;
+            while (current < _size)
+            {
+                result = send(_fd, _data + current, _size - current, 0);
+                if (result < 0)
+                    return false;
+
+                current += result;
+            }
+            return true;
+        }
+
+        IServer::IServer()
+        {
+            listener_fd_ = X_FD_INVALID;
+            event_ = nullptr;
+        }
+        IServer::~IServer()
+        {
+            //
+        }
+/**************************************$ IServer $*********************************************/
+
+
+/************************************# IServerCore #*******************************************/
         void IServerCore::Stop()
         {
             run_flag_ = false;
         }
+
         std::size_t IServerCore::ConnectSize()
         {
             std::lock_guard<std::mutex> auto_lock(lock_mtx_);
@@ -22,7 +54,6 @@ namespace xM
             }
             return false;
         }
-
         int IServerCore::GetID()
         {
             return id_;
@@ -72,10 +103,11 @@ namespace xM
         {
             //
         }
+/************************************$ IServerCore $*******************************************/
 
 
-
-        int IServer::Send(int _fd, uint8_t* _data, size_t _size)
+/**************************************# IConnect #********************************************/
+        int IConnect::Send(int _fd, uint8_t* _data, size_t _size)
         {
             size_t result = 0;
             size_t current = 0;
@@ -90,14 +122,35 @@ namespace xM
             return true;
         }
 
-        IServer::IServer()
+        IConnect::IConnect()
         {
-            listener_fd_ = X_FD_INVALID;
+            conn_fd_ = X_FD_INVALID;
             event_ = nullptr;
         }
-        IServer::~IServer()
+        IConnect::~IConnect()
         {
             //
         }
+/**************************************$ IConnect $********************************************/
+
+
+/************************************# IConnectCore #******************************************/
+        void IConnectCore::Stop()
+        {
+            run_flag_ = false;
+        }
+
+
+        IConnectCore::IConnectCore()
+        {
+            run_flag_ = false;
+            event_ = nullptr;
+            conn_fd_ = X_FD_INVALID;
+        }
+        IConnectCore::~IConnectCore()
+        {
+            //
+        }
+/************************************$ IConnectCore $******************************************/
     }
 }

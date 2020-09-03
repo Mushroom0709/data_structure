@@ -88,7 +88,7 @@ namespace xM
                 }
             }
         public:
-            bool Start(IEventBase* _ev, int _port, const char* _ip = "0.0.0.0")
+            bool Start(PtrIServerEvent _ev, int _port, const char* _ip = "0.0.0.0")
             {
                 if (listener_fd_ != X_FD_INVALID)
                     return false;
